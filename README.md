@@ -115,7 +115,7 @@ Bitcoin is required; the rest are chosen, and each choice changes which dependen
 
 **Bitcoin must be archival with transaction indexing.** Mempool raises a `critical` task against Bitcoin asking for `prune=0` and `txindex=true`, and that task re-raises whenever the settings stop matching — it is not a one-time prompt. Address lookups additionally need an Electrum indexer, which is what the indexer selection is for.
 
-Bitcoin's data directory is mounted read-only so the backend can read its RPC cookie; for the chosen Lightning node, only the read-only `public` tier holding the credential is mounted — LND's `readonly/` (`readonly.macaroon`, `tls.cert`) at `/mnt/lnd`, or Core Lightning's `rpc/` (the `lightning-rpc` socket) at `/mnt/cln`. No credential is stored in this package.
+Bitcoin's data directory is mounted read-only so the backend can read its RPC cookie; for the chosen Lightning node, only the `public` tier holding the credential is mounted. With LND that is `readonly/` (`readonly.macaroon`, `tls.cert`) at `/mnt/lnd`, a credential that can only read. With Core Lightning it is `rpc/` (the `lightning-rpc` socket) at `/mnt/cln`. The mount is marked read-only, but that does not limit what the socket accepts: a unix socket can still be connected through a read-only mount, and the socket is guarded only by file permissions, not by runes, so Mempool gets full control of the Core Lightning node, funds included. In Mempool 3.3.2, the Core Lightning client only calls `listnodes` and `listchannels`, but it connects with no rune, so the package cannot narrow this today. Choose LND if you want Mempool limited to read-only access. No credential is stored in this package.
 
 ## Network Access and Interfaces
 
